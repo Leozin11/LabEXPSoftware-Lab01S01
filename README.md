@@ -9,7 +9,8 @@
 
 * Nome completo
 * Nome completo
-* Nome completo ...
+* Nome completo
+* Bernardo Cruz Rohlfs
 
 ## Artefatos:
 
