@@ -8,11 +8,14 @@ chave = os.getenv("key")
 graphql_url = "https://api.github.com/graphql"
 
 query = """{
-  search(query:"stars>10", type:REPOSITORY, 
+  search(query:"stars>1 fork:false sort:stars-desc", type:REPOSITORY, 
   first:100){
     nodes{
       ... on Repository{
         name
+        owner{
+          login
+        }
         createdAt
         pullRequests{totalCount}
         releases{totalCount}
