@@ -9,6 +9,7 @@ load_dotenv()
 
 
 chave = os.getenv("key")
+
 graphQL = 'https://api.github.com/graphql'
 
 headers = {'Authorization': 'Bearer %s' % chave}
@@ -103,3 +104,4 @@ if os.path.exists(caminhoCSV):
     print("Resultado da consulta salvo em CSV com sucesso.")
 else:
     print("Falha ao salvar resultado em CSV.")
+
