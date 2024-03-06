@@ -1,7 +1,8 @@
 
 # Scripts
 
+## Instruções de Uso
+* Ao abrir o projeto deve-se criar um novo terminal e utilizar o comando "python + (caminho do arquivo)" para rodar o script
 
-* Adicionar os scripts nesta pasta.
-
-* Listar os scripts desenvolvidos, adicionando uma breve descrição de como utilizá-los neste arquivo.
+### Exemplo
+* python .../LabEXPSoftware-Lab01S01/scripts/getRepository.py
