@@ -1,61 +1,107 @@
 import requests
-import json
+import pandas as pd
 import os
 from dotenv import load_dotenv
+import json
+
 
 load_dotenv()
+
+
 chave = os.getenv("key")
-graphql_url = "https://api.github.com/graphql"
 
-query = """{
-  search(query:"stars>1 fork:false sort:stars-desc", type:REPOSITORY, 
-  first:100){
-    nodes{
-      ... on Repository{
-        name
-        owner{
-          login
+graphQL = 'https://api.github.com/graphql'
+
+headers = {'Authorization': 'Bearer %s' % chave}
+allResults = list()
+
+
+def requisicao(repositorios):
+    endCursor = None
+
+    for i in range(int(repositorios/20)):
+        variaveis = {
+            "endCursor": endCursor
         }
-        createdAt
-        pullRequests{totalCount}
-        releases{totalCount}
-        updatedAt
-        primaryLanguage{name}
-        totalIssues: issues{totalCount}
-        closedIssues: issues(states: CLOSED){totalCount}
-      }
-    }
-  }
-}
-"""
+        query = """
+        query ($endCursor: String) {
+          search(query: "stars:>1 fork:false sort:stars-desc", type: REPOSITORY, first:20, after: $endCursor) {
+            edges {
+              node {
+                ... on Repository {
+                  owner{
+                    login
+                  }
+                  name
+                  createdAt
+                  updatedAt
+                  primaryLanguage {
+                    name
+                  }
+                  releases {
+                    totalCount
+                  }
+                  totalIssues: issues {
+                    totalCount
+                  }
+                  closedIssues: issues(states: CLOSED) {
+                    totalCount
+                  }
+                  pullRequests(states: MERGED) {
+                    totalCount
+                  }
+                }
+              }
+            }
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+        """
 
-headers = {
-    'Authorization': 'Bearer %s' % chave,
-}
-
-# Dados da requisição
-data = {
-    'query': query,
-}
-
-# Se você ainda não tiver, crie o diretório 'scripts/dataset/json'
-output_directory = os.path.join('scripts/dataset', 'json')
-os.makedirs(output_directory, exist_ok=True)
-
-# Caminho completo para o arquivo dentro da pasta 'dataset/json'
-output_file_path = os.path.join(output_directory, 'resultado_query.json')
-
-response = requests.post(graphql_url, headers=headers, json=data)
+        request = requests.post(
+            url=graphQL, json={'query': query, 'variaveis': variaveis}, headers=headers)
+        resp = request.json()
+        allResults.append(resp)
+        endCursor = resp['data']['search']['pageInfo']['endCursor']
 
 
-if response.status_code == 200:
-    resultado = response.json()
+    if request.status_code == 200:
+        return allResults
+    else:
+        raise Exception("Falha na Query {}. {}".format(
+            request.status_code, query))
 
 
-    with open(output_file_path, 'w') as file:
-        json.dump(resultado, file, ensure_ascii=False, indent=4)
+repositorios = 1000
 
-    print("Resultado salvo com sucesso em:", output_file_path)
+res = requisicao(repositorios)
+
+
+os.makedirs('scripts/dataset/json', exist_ok=True)
+
+with open('scripts/dataset/json/resultado_query.json', 'w', encoding='utf-8') as f:
+    json.dump(res, f, ensure_ascii=False, indent=2)
+
+with open('scripts/dataset/json/resultado_query.json', 'r') as f:
+    data = json.load(f)
+
+df = pd.DataFrame()
+dfs = []
+
+for i in range(len(data)):
+    normalized_data = pd.json_normalize(data[i]['data']['search']['edges'])
+    dfs.append(normalized_data)
+
+df = pd.concat(dfs, ignore_index=True)
+
+caminhoCSV = 'scripts/dataset/csv/resultado_query.csv'
+df.to_csv(caminhoCSV, index=False)
+
+if os.path.exists(caminhoCSV):
+    print("Resultado da consulta salvo em CSV com sucesso.")
 else:
-    print(f"Falha na requisição. Código de status: {response.status_code}")
-    print(response.text)
+    print("Falha ao salvar resultado em CSV.")
+
