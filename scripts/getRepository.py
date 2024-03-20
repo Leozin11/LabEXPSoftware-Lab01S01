@@ -55,7 +55,9 @@ def requisicao(repositorios):
             }
             pageInfo {
               endCursor
+              startCursor
               hasNextPage
+              hasPreviousPage
             }
           }
         }
