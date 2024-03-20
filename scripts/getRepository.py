@@ -6,6 +6,7 @@ import json
 
 load_dotenv()
 chave = os.getenv("key")
+
 graphQL = 'https://api.github.com/graphql'
 headers = {'Authorization': 'Bearer %s' % chave}
 allResults = list()
@@ -103,9 +104,12 @@ if res is not None:
     caminhoCSV = 'scripts/dataset/csv/resultado_query.csv'
     df.to_csv(caminhoCSV, index=False)
 
+
     # Verificar se o arquivo CSV foi salvo com sucesso
     if os.path.exists(caminhoCSV):
         print("Resultado da consulta salvo em CSV com sucesso.")
     else:
         print("Falha ao salvar resultado em CSV.")
         print("Verifique se o diretório 'scripts/dataset/csv/' existe e tem permissões adequadas.")
+
+

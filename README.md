@@ -8,9 +8,9 @@
 ## Integrantes do grupo:
 
 * Bernardo Cruz Rohlfs
-* Leonardo
+* Leonardo Augusto Pereira do Carmo
 * Matheus Belo Santos Mello
-* Tarcísio Ney
+* Tarcísio Ney Martins Filho
 
 ## Artefatos:
 
